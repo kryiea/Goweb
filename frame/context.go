@@ -105,9 +105,9 @@ func (ctx *Context) QueryAll() map[string][]string {
 func (ctx *Context) FormInt(key string, def int) int {
 	params := ctx.FormAll()
 	if vals, ok := params[key]; ok {
-		len := len(vals)
-		if len > 0 {
-			intval, err := strconv.Atoi(vals[len-1])
+		length := len(vals)
+		if length > 0 {
+			intval, err := strconv.Atoi(vals[length-1])
 			if err != nil {
 				return def
 			}
@@ -120,9 +120,9 @@ func (ctx *Context) FormInt(key string, def int) int {
 func (ctx *Context) FormString(key string, def string) string {
 	params := ctx.FormAll()
 	if vals, ok := params[key]; ok {
-		len := len(vals)
-		if len > 0 {
-			return vals[len-1]
+		length := len(vals)
+		if length > 0 {
+			return vals[length-1]
 		}
 	}
 	return def

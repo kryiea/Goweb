@@ -45,7 +45,7 @@ func FooControllerHandler(c *frame.Context) error {
 		defer c.WriterMux().Unlock()
 
 		c.Json(500, "time out")
-		c.SetHasTime()
+		c.SetHasTimeout()
 	}
 	return nil
 }

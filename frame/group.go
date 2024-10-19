@@ -1,40 +1,89 @@
 package frame
 
-// IGroup 路由分组接口
+// IGroup 路由接口
 type IGroup interface {
-	Get(string, ControllerHandler)
-	Post(string, ControllerHandler)
-	Put(string, ControllerHandler)
-	Delete(string, ControllerHandler)
+	Get(string, ...ControllerHandler)
+	Post(string, ...ControllerHandler)
+	Put(string, ...ControllerHandler)
+	Delete(string, ...ControllerHandler)
+	// 嵌套中间件
+	Use(middlewares ...ControllerHandler)
+
+	// 实现嵌套group
+	Group(string) IGroup
 }
 
-// Group 实现IGroup接口
+// Group 实现 IGroup 接口
 type Group struct {
-	core   *Core
-	prefix string
+	core        *Core               // core结构
+	parent      *Group              // 指向上一个Group
+	prefix      string              // Group 的通用前缀
+	middlewares []ControllerHandler // 存放中间件
 }
 
 // 初始化 Group
-func NewGroup(core *Core, prefix string) IGroup {
-	return &Group{core, prefix}
+func NewGroup(core *Core, prefix string) *Group {
+	return &Group{
+		core:        core,
+		prefix:      prefix,
+		parent:      nil,
+		middlewares: make([]ControllerHandler, 0),
+	}
 }
 
-// Get 实现IGroup接口
-func (g *Group) Get(path string, handler ControllerHandler) {
-	g.core.Get(g.prefix+path, handler)
+// 实现Get方法
+func (g *Group) Get(uri string, handlers ...ControllerHandler) {
+	uri = g.getAbsolutePrefix() + uri
+	allHandlers := append(g.getMiddlewares(), handlers...)
+	g.core.Get(uri, allHandlers...)
 }
 
-// Post 实现IGroup接口
-func (g *Group) Post(path string, handler ControllerHandler) {
-	g.core.Post(g.prefix+path, handler)
+// 实现Post方法
+func (g *Group) Post(uri string, handlers ...ControllerHandler) {
+	uri = g.getAbsolutePrefix() + uri
+	allHandlers := append(g.getMiddlewares(), handlers...)
+	g.core.Post(uri, allHandlers...)
 }
 
-// Put 实现IGroup接口
-func (g *Group) Put(path string, handler ControllerHandler) {
-	g.core.Put(g.prefix+path, handler)
+// 实现Put方法
+func (g *Group) Put(uri string, handlers ...ControllerHandler) {
+	uri = g.getAbsolutePrefix() + uri
+	allHandlers := append(g.getMiddlewares(), handlers...)
+	g.core.Put(uri, allHandlers...)
 }
 
-// Delete 实现IGroup接口
-func (g *Group) Delete(path string, handler ControllerHandler) {
-	g.core.Delete(g.prefix+path, handler)
+// 实现Delete方法
+func (g *Group) Delete(uri string, handlers ...ControllerHandler) {
+	uri = g.getAbsolutePrefix() + uri
+	allHandlers := append(g.getMiddlewares(), handlers...)
+	g.core.Delete(uri, allHandlers...)
+}
+
+// 取当前group的绝对路径
+func (g *Group) getAbsolutePrefix() string {
+	if g.parent == nil {
+		return g.prefix
+	}
+	return g.parent.getAbsolutePrefix() + g.prefix
+}
+
+// 获取某个 group 的 middleware
+// 这里就是获取除了 Get/Post/Put/Delete 之外设置的 middleware
+func (g *Group) getMiddlewares() []ControllerHandler {
+	if g.middlewares == nil {
+		return g.middlewares
+	}
+	return append(g.parent.getMiddlewares(), g.middlewares...)
+}
+
+// 实现Group方法
+func (g *Group) Group(rui string) IGroup {
+	cgroup := NewGroup(g.core, rui)
+	cgroup.parent = g
+	return cgroup
+}
+
+// 注册中间件
+func (g *Group) Use(middlewares ...ControllerHandler) {
+	g.middlewares = append(g.middlewares, middlewares...)
 }

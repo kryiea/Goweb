@@ -15,7 +15,8 @@ type Context struct {
 	request        *http.Request
 	responseWriter http.ResponseWriter
 	ctx            context.Context
-	handler        ControllerHandler
+	handlers       []ControllerHandler // 当前请求的hanler链条
+	index          int                 // 当前请求调用到调用链的哪个节点，初始值应该为 -1，每次调用都会自增 1
 
 	// 超时标志位
 	hasTimeout bool
@@ -30,7 +31,19 @@ func NewContext(r *http.Request, w http.ResponseWriter) *Context {
 		ctx:            r.Context(),
 		writerMux:      &sync.Mutex{},
 		hasTimeout:     false,
+		index:          -1,
 	}
+}
+
+// Next 方法每调用一次，就将这个控制器链路的调用控制器，往后移动一步。
+func (c *Context) Next() error {
+	c.index++
+	if c.index < len(c.handlers) {
+		if err := c.handlers[c.index](c); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // base functions
@@ -46,7 +59,7 @@ func (ctx *Context) GetResponseWriter() http.ResponseWriter {
 	return ctx.responseWriter
 }
 
-func (ctx *Context) SetHasTime() {
+func (ctx *Context) SetHasTimeout() {
 	ctx.hasTimeout = true
 }
 
@@ -186,4 +199,9 @@ func (ctx *Context) HTML(status int, obj interface{}, template string) error {
 
 func (ctx *Context) Text(status int, obj string) error {
 	return nil
+}
+
+func (c *Context) SetHandlers(handlers []ControllerHandler) {
+	// TODO
+	c.handlers = handlers
 }

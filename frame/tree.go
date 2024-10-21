@@ -16,6 +16,7 @@ type node struct {
 	segment  string              // uri中的字符串，代表这个节点表示的路由中某个段的字符串
 	handlers []ControllerHandler // 中间件 + 控制器
 	childs   []*node             // 代表这个节点下的子节点
+	parent   *node               // 代表这个节点的父节点
 }
 
 // 判断一个segment是否是通配符
@@ -46,8 +47,8 @@ func (n *node) filterChildNodes(segment string) []*node {
 	return nodes
 }
 
-func (n *node) mathNode(uri string) *node {
-	// 使用分隔符将uri切割， 切割一次， 得到第一部分和第二部分
+func (n *node) matchNode(uri string) *node {
+	// 使用分隔符将uri切割，切割一次， 得到第一部分和第二部分
 	segments := strings.SplitN(uri, "/", 2)
 	// 第一部分用于匹配下一个节点
 	segment := segments[0]
@@ -76,7 +77,7 @@ func (n *node) mathNode(uri string) *node {
 
 	// 如果有2个segment,说明uri还没有结束,递归每个子节点继续进行查找
 	for _, tn := range cnodes {
-		tnMatch := tn.mathNode(segments[1])
+		tnMatch := tn.matchNode(segments[1])
 		if tnMatch != nil {
 			return tnMatch
 		}
@@ -105,7 +106,7 @@ func (tree *Tree) AddRouter(uri string, handlers []ControllerHandler) error {
 	n := tree.root
 
 	// 1. 判断是否冲突
-	if n.mathNode(uri) != nil {
+	if n.matchNode(uri) != nil {
 		return errors.New("router exist:" + uri)
 	}
 	// 2. 增加路由规则
@@ -140,6 +141,8 @@ func (tree *Tree) AddRouter(uri string, handlers []ControllerHandler) error {
 				cnode.isLast = true
 				cnode.handlers = handlers
 			}
+			// 父节点修改
+			cnode.parent = n
 			n.childs = append(n.childs, cnode)
 			objNode = cnode
 		}
@@ -151,10 +154,29 @@ func (tree *Tree) AddRouter(uri string, handlers []ControllerHandler) error {
 // 匹配 uri 的 handler
 func (tree *Tree) FindHandler(uri string) []ControllerHandler {
 	// 直接复用matchNode函数，uri是不带通配符的地址
-	mathNode := tree.root.mathNode(uri)
+	mathNode := tree.root.matchNode(uri)
 
 	if mathNode == nil {
 		return nil
 	}
 	return mathNode.handlers
+}
+
+// 将 uri 解析为 params
+func (n *node) parseParamsFromEndNode(uri string) map[string]string {
+	ret := map[string]string{}
+	segments := strings.Split(uri, "/")
+	cnt := len(segments)
+	cur := n
+
+	for i := cnt - 1; i >= 0; i-- {
+		if cur.segment == "" {
+			break
+		}
+		if isWildSegment(cur.segment) {
+			ret[cur.segment[1:]] = segments[i]
+		}
+		cur = cur.parent
+	}
+	return ret
 }

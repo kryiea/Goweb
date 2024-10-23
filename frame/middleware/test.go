@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"Goweb/frame"
 	"fmt"
+	"github.com/kryiea/GoWeb/frame"
 )
 
 func Test1() frame.ControllerHandler {

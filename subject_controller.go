@@ -1,6 +1,6 @@
 package main
 
-import "Goweb/frame"
+import "github.com/kryiea/GoWeb/frame"
 
 func SubjectAddController(c *frame.Context) error {
 	c.SetOkStatus().Json("ok, SubjectAddController")

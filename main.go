@@ -1,9 +1,9 @@
 package main
 
 import (
-	"Goweb/frame"
-	"Goweb/frame/middleware"
 	"context"
+	"github.com/kryiea/GoWeb/frame"
+	"github.com/kryiea/GoWeb/frame/middleware"
 	"log"
 	"net/http"
 	"os"

@@ -1,6 +1,6 @@
 package middleware
 
-import "Goweb/frame"
+import "github.com/kryiea/github.com/kryiea/GoWeb/frame"
 
 // recovery 机制，将协程中的函数异常进行捕获
 func Recovery() frame.ControllerHandler {

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"Goweb/frame"
 	"context"
 	"fmt"
+	"github.com/kryiea/GoWeb/frame"
 	"log"
 	"time"
 )

@@ -1,6 +1,6 @@
 package main
 
-import "Goweb/frame"
+import "github.com/kryiea/GoWeb/frame"
 
 func UserLoginController(c *frame.Context) error {
 	// 打印控制器名字

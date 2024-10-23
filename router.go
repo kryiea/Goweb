@@ -1,8 +1,8 @@
 package main
 
 import (
-	"Goweb/frame"
-	"Goweb/frame/middleware"
+	"github.com/kryiea/GoWeb/frame"
+	"github.com/kryiea/GoWeb/frame/middleware"
 )
 
 // 注册路由规则

@@ -2,31 +2,36 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/kryiea/GoWeb/frame"
+
+	"github.com/kryiea/GoWeb/frame/gin"
 )
 
-func Test1() frame.ControllerHandler {
-	return func(c *frame.Context) error {
-		fmt.Println("middleware pre test1")
-		c.Next()
-		fmt.Println("middleware post test1")
-		return nil
-	}
+// Test1 是一个中间件函数，它在处理请求之前和之后执行一些操作
+func Test1() gin.HandlerFunc {
+    // 使用函数回调
+    return func(c *gin.Context) {
+        fmt.Println("middleware pre test1")
+        c.Next()
+        fmt.Println("middleware post test1")
+    }
 }
 
-func Test2() frame.ControllerHandler {
-	return func(c *frame.Context) error {
-		fmt.Println("middleware pre test2")
-		c.Next()
-		fmt.Println("middleware post test2")
-		return nil
-	}
+// Test2 是一个中间件函数，它在处理请求之前和之后执行一些操作
+func Test2() gin.HandlerFunc {
+    // 使用函数回调
+    return func(c *gin.Context) {
+        fmt.Println("middleware pre test2")
+        c.Next()
+        fmt.Println("middleware post test2")
+    }
 }
-func Test3() frame.ControllerHandler {
-	return func(c *frame.Context) error {
-		fmt.Println("middleware pre test3")
-		c.Next()
-		fmt.Println("middleware post test3")
-		return nil
-	}
+
+// Test3 是一个中间件函数，它在处理请求之前和之后执行一些操作
+func Test3() gin.HandlerFunc {
+    // 使用函数回调
+    return func(c *gin.Context) {
+        fmt.Println("middleware pre test3")
+        c.Next()
+        fmt.Println("middleware post test3")
+    }
 }

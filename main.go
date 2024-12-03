@@ -2,20 +2,22 @@ package main
 
 import (
 	"context"
-	"github.com/kryiea/GoWeb/frame"
-	"github.com/kryiea/GoWeb/frame/middleware"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/kryiea/GoWeb/frame/gin"
+	"github.com/kryiea/GoWeb/frame/middleware"
 )
 
 func main() {
-	core := frame.NewCore()
+	core := gin.New()
 
-	core.Use(middleware.Recovery())
+	core.Use(gin.Recovery())
+	core.Use(middleware.Cost())
 
 	// 注册路由
 	registerRouter(core)

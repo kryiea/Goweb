@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/gin-contrib/sse"
+	"github.com/kryiea/GoWeb/frame"
 	"github.com/kryiea/GoWeb/frame/gin/binding"
 	"github.com/kryiea/GoWeb/frame/gin/render"
 )
@@ -44,6 +45,8 @@ const abortIndex int8 = math.MaxInt8 / 2
 // Context is the most important part of gin. It allows us to pass variables between middleware,
 // manage the flow, validate the JSON of a request and render a JSON response for example.
 type Context struct {
+	// Context 中保存容器
+	container frame.Container
 	writermem responseWriter
 	Request   *http.Request
 	Writer    ResponseWriter

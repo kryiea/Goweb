@@ -10,38 +10,36 @@ import (
 	"time"
 
 	"github.com/kryiea/GoWeb/frame/gin"
-	"github.com/kryiea/GoWeb/frame/middleware"
+	"github.com/kryiea/GoWeb/provider/demo"
 )
 
 func main() {
 	core := gin.New()
 
+	// 注册服务提供者
+	core.Bind(&demo.DemoServiceProvider{})
 	core.Use(gin.Recovery())
-	core.Use(middleware.Cost())
 
-	// 注册路由
 	registerRouter(core)
 
 	server := &http.Server{
-		// 自定义的请求核心处理函数
 		Handler: core,
-		Addr:    ":8080",
+		Addr:    ":8888",
 	}
 
-	// 启动服务的 goroutine
+	// 这个goroutine是启动服务的goroutine
 	go func() {
-		log.Println("Listening on " + server.Addr)
 		server.ListenAndServe()
 	}()
 
-	// 当前的 goroutine 等待信号量
+	// 当前的goroutine等待信号量
 	quit := make(chan os.Signal)
-	// 监听信号：SIGINT, SIGTERM, SIGQUIT
+	// 监控信号：SIGINT, SIGTERM, SIGQUIT
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
-	// 等待关闭信号
+	// 这里会阻塞当前goroutine等待信号
 	<-quit
 
-	// 接收到信号，关闭服务
+	// 调用Server.Shutdown graceful结束
 	timeoutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
